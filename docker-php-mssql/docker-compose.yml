@@ -1,9 +1,16 @@
 version: '3.5'
 services:
   app:
-    image: atmosmaciel/docker-php-mssql
+    # image: atmosmaciel/docker-php-mssql
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        proxy: "http://4967:mdalycod@proxy.ceuma.edu.br:3128"
+        sproxy: "http://4967:mdalycod@proxy.ceuma.edu.br:3128"
+        no_proxy: "localhost,127.0.0.1,127.0.0.0/8"
     container_name: container-app-name
     volumes:
-      - ./web:/var/www/html
+      - ./web:/var/www/app
     ports:
       - "8000:80"
