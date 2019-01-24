@@ -1,0 +1,9 @@
+version: '3.5'
+services:
+  app:
+    image: atmosmaciel/docker-php-mssql
+    container_name: container-app-name
+    volumes:
+      - ./web:/var/www/html
+    ports:
+      - "8000:80"
