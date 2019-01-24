@@ -1,0 +1,11 @@
+version: '3.5'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: container-app-name
+    volumes:
+      - ./web:/var/www/app
+    ports:
+      - "8000:80"

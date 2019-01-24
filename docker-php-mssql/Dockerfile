@@ -80,11 +80,12 @@ RUN echo "---> Installing Composer" \
  && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
  && chmod +x /usr/local/bin/composer \
  && echo "---> Adding the Cygni user" \
- && adduser -D -u 1000 cygni \
+ && adduser -q -u 1000 cygni \
+ && usermod -aG www-data cygni \
  && mkdir -p /var/www/app \
  && chown -R cygni:cygni /var/www \
- && wget -O /tini https://github.com/krallin/tini/releases/download/v0.16.1/tini-static \
- && chmod +x /tini \
+ && chown -R www-data:cygni /var/www \
+ && chown -R www-data:cygni /etc/apache2 \
  && echo "cygni  ALL = ( ALL ) NOPASSWD: ALL" >> /etc/sudoers \
  && chown -R cygni:cygni /home/cygni
 
