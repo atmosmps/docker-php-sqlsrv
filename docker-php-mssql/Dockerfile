@@ -14,6 +14,7 @@ RUN apt-get update \
         tzdata \
         unzip \
         gnupg \
+        openssl \
         apt-transport-https \
         build-essential \
         make \
@@ -51,11 +52,11 @@ RUN apt-get update \
         php7.2-xdebug \
         php7.2-xml \
         php7.2-xmlreader \
-        php7.2-openssl \
+        # php7.2-openssl \
         php7.2-xsl \
-        php7.2-zlib \
+        # php7.2-zlib \
         php7.2-zip \
-        php7.2-pcntl \
+        # php7.2-pcntl \
         php7.2-cgi \
         php7.2-phpdbg \
         php-pear \
