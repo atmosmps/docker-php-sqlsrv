@@ -1,16 +1,5 @@
 FROM ubuntu:18.04
 
-ARG proxy
-ARG sproxy
-ARG no_proxy
-
-ENV http_proxy="$proxy"
-ENV https_proxy="$sproxy"
-ENV no_proxy="$no_proxy"
-
-RUN echo Acquire::http::Proxy "$proxy"; > /etc/apt/apt.conf.d/proxy.conf \
- && echo Acquire::https::Proxy "$sproxy"; >> /etc/apt/apt.conf.d/proxy.conf
-
 # Add the ENTRYPOINT script
 ADD configs/bashrc /home/cygni/.bashrc
 
