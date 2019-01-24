@@ -41,7 +41,7 @@ RUN apt-get update \
     && ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools \
     && echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bash_profile \
     && echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc \
-    && pear config-set http_proxy $(printenv http_proxy) \
+    # && pear config-set http_proxy $(printenv http_proxy) \
     && pecl install sqlsrv pdo_sqlsrv \
     && echo "extension=pdo_sqlsrv.so" >> /etc/php/7.2/mods-available/pdo_sqlsrv.ini \
     && echo "extension=pdo_sqlsrv.so" >> /etc/php/7.2/apache2/php.ini \
