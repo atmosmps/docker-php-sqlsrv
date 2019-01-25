@@ -105,7 +105,7 @@ RUN a2enmod rewrite && service apache2 restart
 # USER cygni
 
 # Application directory
-WORKDIR /var/www/app
+WORKDIR /var/www/html
 
 # # Environment variables
 # ENV PATH=/home/cygni/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
