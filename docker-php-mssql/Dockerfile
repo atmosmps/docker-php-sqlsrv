@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
-# Add the ENTRYPOINT script
-ADD configs/bashrc /home/cygni/.bashrc
+# # Add the ENTRYPOINT script
+# ADD configs/bashrc /home/cygni/.bashrc
 
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
@@ -69,6 +69,8 @@ RUN apt-get update \
     && echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc \
     # && pear config-set http_proxy $(printenv http_proxy) \
     && pecl install sqlsrv pdo_sqlsrv \
+    && echo "extension=pdo_sqlsrv.so" >> `php --ini | grep "Scan for additional .ini files" | sed -e "s|.*:\s*||"`/30-pdo_sqlsrv.ini \
+    && echo "extension=sqlsrv.so" >> `php --ini | grep "Scan for additional .ini files" | sed -e "s|.*:\s*||"`/20-sqlsrv.ini \
     && echo "extension=pdo_sqlsrv.so" >> /etc/php/7.2/mods-available/pdo_sqlsrv.ini \
     && echo "extension=pdo_sqlsrv.so" >> /etc/php/7.2/apache2/php.ini \
     && echo "extension=sqlsrv.so" >> /etc/php/7.2/mods-available/sqlsrv.ini \
