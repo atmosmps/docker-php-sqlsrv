@@ -43,7 +43,6 @@ RUN apt-get update \
         php7.2-intl \
         php7.2-json \
         php7.2-mbstring \
-        # php7.2-pdo \
         php7.2-mysql \
         php7.2-mongodb \
         php7.2-opcache \
@@ -52,11 +51,8 @@ RUN apt-get update \
         php7.2-xdebug \
         php7.2-xml \
         php7.2-xmlreader \
-        # php7.2-openssl \
         php7.2-xsl \
-        # php7.2-zlib \
         php7.2-zip \
-        # php7.2-pcntl \
         php7.2-cgi \
         php7.2-phpdbg \
         php-pear \
@@ -67,7 +63,6 @@ RUN apt-get update \
     && ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools \
     && echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bash_profile \
     && echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc \
-    # && pear config-set http_proxy $(printenv http_proxy) \
     && pecl install sqlsrv pdo_sqlsrv \
     && echo "extension=pdo_sqlsrv.so" >> `php --ini | grep "Scan for additional .ini files" | sed -e "s|.*:\s*||"`/30-pdo_sqlsrv.ini \
     && echo "extension=sqlsrv.so" >> `php --ini | grep "Scan for additional .ini files" | sed -e "s|.*:\s*||"`/20-sqlsrv.ini \
