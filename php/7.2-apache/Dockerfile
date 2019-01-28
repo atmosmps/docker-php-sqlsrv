@@ -72,9 +72,9 @@ RUN apt-get update \
     && echo "extension=pdo_sqlsrv.so" >> `php --ini | grep "Scan for additional .ini files" | sed -e "s|.*:\s*||"`/30-pdo_sqlsrv.ini \
     && echo "extension=sqlsrv.so" >> `php --ini | grep "Scan for additional .ini files" | sed -e "s|.*:\s*||"`/20-sqlsrv.ini \
     && echo "extension=pdo_sqlsrv.so" >> /etc/php/7.2/mods-available/pdo_sqlsrv.ini \
-    && echo "extension=pdo_sqlsrv.so" >> /etc/php/7.2/apache2/php.ini \
     && echo "extension=sqlsrv.so" >> /etc/php/7.2/mods-available/sqlsrv.ini \
-    && echo "extension=sqlsrv.so" >> /etc/php/7.2/apache2/php.ini \
+    && echo "extension=pdo_sqlsrv.so" >> /etc/php/7.2/apache2/conf.d/30-pdo_sqlsrv.ini \
+    && echo "extension=sqlsrv.so" >> /etc/php/7.2/apache2/conf.d/20-sqlsrv.ini \
     && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
 ENV DEBIAN_FRONTEND teletype
 
