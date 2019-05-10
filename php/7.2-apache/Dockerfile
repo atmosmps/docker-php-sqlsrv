@@ -92,6 +92,34 @@ RUN echo "---> Adding the devceuma user" \
  #  && echo "cygni  ALL = ( ALL ) NOPASSWD: ALL" >> /etc/sudoers \
  #  && chown -R cygni:cygni /home/cygni
 
+RUN echo "---> Configuring PHP" \
+ && echo "devceuma  ALL = ( ALL ) NOPASSWD: ALL" >> /etc/sudoers \
+ && sed -i "/user = .*/c\user = devceuma" /etc/php/7.2/fpm/pool.d/www.conf \
+ && sed -i "/^group = .*/c\group = devceuma" /etc/php/7.2/fpm/pool.d/www.conf \
+ && sed -i "/listen.owner = .*/c\listen.owner = devceuma" /etc/php/7.2/fpm/pool.d/www.conf \
+ && sed -i "/listen.group = .*/c\listen.group = devceuma" /etc/php/7.2/fpm/pool.d/www.conf \
+ # && sed -i "/listen = .*/c\listen = [::]:9000" /etc/php/7.2/fpm/pool.d/www.conf \
+ # && sed -i "/;access.log = .*/c\access.log = /proc/self/fd/2" /etc/php/7.2/fpm/pool.d/www.conf \
+ && sed -i "/;clear_env = .*/c\clear_env = no" /etc/php/7.2/fpm/pool.d/www.conf \
+ && sed -i "/;catch_workers_output = .*/c\catch_workers_output = yes" /etc/php/7.2/fpm/pool.d/www.conf \
+ && sed -i "/pid = .*/c\;pid = /run/php/php7.2-fpm.pid" /etc/php/7.2/fpm/php-fpm.conf \
+ && sed -i "/;daemonize = .*/c\daemonize = yes" /etc/php/7.2/fpm/php-fpm.conf \
+ && sed -i "/error_log = .*/c\error_log = /var/log/php7.2-fpm.log" /etc/php/7.2/fpm/php-fpm.conf \
+
+ && echo "---> Configuring PHP Apache" \
+ && sed -i "/post_max_size = .*/c\post_max_size = 1000M" /etc/php/7.2/apache2/php.ini \
+ && sed -i "/upload_max_filesize = .*/c\upload_max_filesize = 1000M" /etc/php/7.2/apache2/php.ini \
+ # && sed -i "/zend_extension=xdebug/c\;zend_extension=xdebug" /etc/php/7.2/apache2/conf.d/00_xdebug.ini \
+
+ && echo "---> Configuring PHP CLI" \
+ && sed -i "/post_max_size = .*/c\post_max_size = 1000M" /etc/php/7.2/cli/php.ini \
+ && sed -i "/upload_max_filesize = .*/c\upload_max_filesize = 1000M" /etc/php/7.2/cli/php.ini \
+ # && sed -i "/zend_extension=xdebug/c\;zend_extension=xdebug" /etc/php/7.2/cli/conf.d/00_xdebug.ini \
+
+ && echo "---> Configuring PHP FPM" \
+ && sed -i "/post_max_size = .*/c\post_max_size = 1000M" /etc/php/7.2/fpm/php.ini \
+ && sed -i "/upload_max_filesize = .*/c\upload_max_filesize = 1000M" /etc/php/7.2/fpm/php.ini \
+ # && sed -i "/zend_extension=xdebug/c\;zend_extension=xdebug" /etc/php/7.2/fpm/conf.d/00_xdebug.ini
 
 RUN echo "---> Installing Composer" \
  && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
