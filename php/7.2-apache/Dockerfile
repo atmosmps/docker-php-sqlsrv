@@ -1,10 +1,12 @@
 FROM ubuntu:18.04
 
-# # Add the ENTRYPOINT script
-# ADD configs/bashrc /home/cygni/.bashrc
+# Add the ENTRYPOINT script
+ADD configs/start.sh /scripts/start.sh
+ADD configs/bashrc /home/devceuma/.bashrc
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update \
+RUN echo "---> Installing Dependencies..." \
+    && apt-get update \
     && apt-get install --no-install-recommends -y \
         curl \
         wget \
@@ -56,10 +58,13 @@ RUN apt-get update \
         php7.2-cgi \
         php7.2-phpdbg \
         php-pear \
+    && echo "---> Setting timezone for America / Fortaleza" && \
     && ln -fs /usr/share/zoneinfo/America/Fortaleza /etc/localtime && dpkg-reconfigure -f noninteractive tzdata \
+    && echo "---> Configurando chaves do repositorio de instalacao dos Drives do SqlServer" && \
     && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
     && curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
+    && echo "---> Finalizando configuracoes para o PHP" && \
     && ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools \
     && echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bash_profile \
     && echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc \
@@ -76,15 +81,7 @@ ENV DEBIAN_FRONTEND teletype
 RUN echo "---> Installing Composer" \
  && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
  && chmod +x /usr/local/bin/composer
-#  && echo "---> Adding the Cygni user" \
-#  && adduser -q -u 1000 cygni \
-#  && usermod -aG www-data cygni \
-#  && mkdir -p /var/www/app \
-#  && chown -R cygni:cygni /var/www \
-#  && chown -R www-data:cygni /var/www \
-#  && chown -R www-data:cygni /etc/apache2 \
-#  && echo "cygni  ALL = ( ALL ) NOPASSWD: ALL" >> /etc/sudoers \
-#  && chown -R cygni:cygni /home/cygni
+
 
 RUN echo "---> Cleaning up" \
  && apt-get autoremove -y \
@@ -97,13 +94,13 @@ COPY configs/000-default.conf /etc/apache2/sites-available/000-default.conf
 RUN a2enmod rewrite && service apache2 restart
 
 # # Define the running user
-# USER cygni
+# USER devceuma
 
 # Application directory
 WORKDIR /var/www/html
 
 # # Environment variables
-# ENV PATH=/home/cygni/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# ENV PATH=/home/devceuma/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 EXPOSE 80
 
