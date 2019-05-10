@@ -1,0 +1,16 @@
+version: '3.5'
+services:
+  app:
+    # image: atmosmaciel/docker-php-sqlsrv:tagname
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        proxy: "http://username:password@proxy.domain.com:3128"
+        sproxy: "http://username:password@proxy.domain.com:3128"
+        no_proxy: "localhost,127.0.0.1,127.0.0.0/8"
+    container_name: container-app-name
+    volumes:
+      - ./web-samples:/var/www/html
+    ports:
+      - "8000:80"
