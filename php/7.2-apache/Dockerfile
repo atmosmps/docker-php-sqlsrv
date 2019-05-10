@@ -78,6 +78,21 @@ RUN echo "---> Installing Dependencies..." \
     && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
 ENV DEBIAN_FRONTEND teletype
 
+RUN echo "---> Adding the devceuma user" \
+ && adduser -D -u 1000 devceuma \
+ && mkdir -p /var/www/app \
+ && chown -R devceuma:devceuma /var/www
+ #  && echo "---> Adding the Cygni user" \
+ #  && adduser -q -u 1000 cygni \
+ #  && usermod -aG www-data cygni \
+ #  && mkdir -p /var/www/app \
+ #  && chown -R cygni:cygni /var/www \
+ #  && chown -R www-data:cygni /var/www \
+ #  && chown -R www-data:cygni /etc/apache2 \
+ #  && echo "cygni  ALL = ( ALL ) NOPASSWD: ALL" >> /etc/sudoers \
+ #  && chown -R cygni:cygni /home/cygni
+
+
 RUN echo "---> Installing Composer" \
  && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
  && chmod +x /usr/local/bin/composer
