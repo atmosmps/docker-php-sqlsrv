@@ -14,7 +14,7 @@ Esta é uma imagem do PHP 7.2 com Apache que está pré configurada para realiza
 
 **TO DO**
 
-- [ ] Separar imagens por contexto: criar somente uma do PHP e Depois uma maseada nesta com Apache.
+- [ ] Separar imagens por contexto: criar somente uma do PHP e Depois uma baseada nesta com Apache.
 - [ ] Criar imagem com Nginx.
 - [ ] Criar imagem baseada em alguma Slim.
 - [ ] Integrar com [PHP DBlib](http://php.net/manual/en/ref.pdo-dblib.php)
