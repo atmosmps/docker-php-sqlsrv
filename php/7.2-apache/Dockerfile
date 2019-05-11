@@ -58,13 +58,13 @@ RUN echo "---> Installing Dependencies..." \
         php7.2-cgi \
         php7.2-phpdbg \
         php-pear \
-    && echo "---> Setting timezone for America / Fortaleza" && \
+    && echo "---> Setting timezone for America / Fortaleza" \
     && ln -fs /usr/share/zoneinfo/America/Fortaleza /etc/localtime && dpkg-reconfigure -f noninteractive tzdata \
-    && echo "---> Configurando chaves do repositorio de instalacao dos Drives do SqlServer" && \
+    && echo "---> Configurando chaves do repositorio de instalacao dos Drives do SqlServer" \
     && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
     && curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
-    && echo "---> Finalizando configuracoes para o PHP" && \
+    && echo "---> Finalizando configuracoes para o PHP" \
     && ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools \
     && echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bash_profile \
     && echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc \
@@ -79,18 +79,12 @@ RUN echo "---> Installing Dependencies..." \
 ENV DEBIAN_FRONTEND teletype
 
 RUN echo "---> Adding the devceuma user" \
- && adduser -D -u 1000 devceuma \
+ && adduser --home /home/devceuma/ --disabled-password --gecos "" devceuma \
+ && usermod -aG www-data devceuma \
  && mkdir -p /var/www/app \
- && chown -R devceuma:devceuma /var/www
- #  && echo "---> Adding the Cygni user" \
- #  && adduser -q -u 1000 cygni \
- #  && usermod -aG www-data cygni \
- #  && mkdir -p /var/www/app \
- #  && chown -R cygni:cygni /var/www \
- #  && chown -R www-data:cygni /var/www \
- #  && chown -R www-data:cygni /etc/apache2 \
- #  && echo "cygni  ALL = ( ALL ) NOPASSWD: ALL" >> /etc/sudoers \
- #  && chown -R cygni:cygni /home/cygni
+ && chown -R devceuma:devceuma /var/www \
+ && chown -R devceuma:devceuma /home/devceuma \
+ && chmod +x /scripts/start.sh
 
 RUN echo "---> Configuring PHP" \
  && echo "devceuma  ALL = ( ALL ) NOPASSWD: ALL" >> /etc/sudoers \
@@ -105,26 +99,25 @@ RUN echo "---> Configuring PHP" \
  && sed -i "/pid = .*/c\;pid = /run/php/php7.2-fpm.pid" /etc/php/7.2/fpm/php-fpm.conf \
  && sed -i "/;daemonize = .*/c\daemonize = yes" /etc/php/7.2/fpm/php-fpm.conf \
  && sed -i "/error_log = .*/c\error_log = /var/log/php7.2-fpm.log" /etc/php/7.2/fpm/php-fpm.conf \
-
  && echo "---> Configuring PHP Apache" \
  && sed -i "/post_max_size = .*/c\post_max_size = 1000M" /etc/php/7.2/apache2/php.ini \
  && sed -i "/upload_max_filesize = .*/c\upload_max_filesize = 1000M" /etc/php/7.2/apache2/php.ini \
  # && sed -i "/zend_extension=xdebug/c\;zend_extension=xdebug" /etc/php/7.2/apache2/conf.d/00_xdebug.ini \
-
  && echo "---> Configuring PHP CLI" \
  && sed -i "/post_max_size = .*/c\post_max_size = 1000M" /etc/php/7.2/cli/php.ini \
  && sed -i "/upload_max_filesize = .*/c\upload_max_filesize = 1000M" /etc/php/7.2/cli/php.ini \
  # && sed -i "/zend_extension=xdebug/c\;zend_extension=xdebug" /etc/php/7.2/cli/conf.d/00_xdebug.ini \
-
  && echo "---> Configuring PHP FPM" \
  && sed -i "/post_max_size = .*/c\post_max_size = 1000M" /etc/php/7.2/fpm/php.ini \
  && sed -i "/upload_max_filesize = .*/c\upload_max_filesize = 1000M" /etc/php/7.2/fpm/php.ini \
  # && sed -i "/zend_extension=xdebug/c\;zend_extension=xdebug" /etc/php/7.2/fpm/conf.d/00_xdebug.ini
+ && chown -R devceuma:devceuma /home/devceuma \
+ && chmod +x /scripts/start.sh \
+ && rm -rf /tmp/*
 
 RUN echo "---> Installing Composer" \
  && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
  && chmod +x /usr/local/bin/composer
-
 
 RUN echo "---> Cleaning up" \
  && apt-get autoremove -y \
@@ -136,14 +129,16 @@ COPY configs/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 RUN a2enmod rewrite && service apache2 restart
 
-# # Define the running user
-# USER devceuma
+# Define the running user
+USER devceuma
 
 # Application directory
-WORKDIR /var/www/html
+WORKDIR /var/www/app
 
-# # Environment variables
-# ENV PATH=/home/devceuma/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# Environment variables
+ENV PATH=/home/devceuma/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+ENTRYPOINT ["/scripts/start.sh"]
 
 EXPOSE 80
 
