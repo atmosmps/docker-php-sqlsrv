@@ -1,7 +1,6 @@
 FROM ubuntu:18.04
 
 # Add the ENTRYPOINT script
-ADD configs/start.sh /scripts/start.sh
 ADD configs/bashrc /home/devceuma/.bashrc
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -75,45 +74,15 @@ RUN echo "---> Installing Dependencies..." \
     && echo "extension=sqlsrv.so" >> /etc/php/7.2/mods-available/sqlsrv.ini \
     && echo "extension=pdo_sqlsrv.so" >> /etc/php/7.2/apache2/conf.d/30-pdo_sqlsrv.ini \
     && echo "extension=sqlsrv.so" >> /etc/php/7.2/apache2/conf.d/20-sqlsrv.ini \
-    && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
+    && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen \
+    && echo "---> Adding the devceuma user" \
+    && adduser --home /home/devceuma/ --disabled-login --gecos "" devceuma \
+    && usermod -aG www-data devceuma \
+    && mkdir -p /var/www/app \
+    && chown -R www-data:www-data /var/www \
+    && chown -R devceuma:www-data /home/devceuma \
+    && echo "devceuma  ALL = ( ALL ) NOPASSWD: ALL" >> /etc/sudoers
 ENV DEBIAN_FRONTEND teletype
-
-RUN echo "---> Adding the devceuma user" \
- && adduser --home /home/devceuma/ --disabled-password --gecos "" devceuma \
- && usermod -aG www-data devceuma \
- && mkdir -p /var/www/app \
- && chown -R devceuma:devceuma /var/www \
- && chown -R devceuma:devceuma /home/devceuma \
- && chmod +x /scripts/start.sh
-
-RUN echo "---> Configuring PHP" \
- && echo "devceuma  ALL = ( ALL ) NOPASSWD: ALL" >> /etc/sudoers \
- && sed -i "/user = .*/c\user = devceuma" /etc/php/7.2/fpm/pool.d/www.conf \
- && sed -i "/^group = .*/c\group = devceuma" /etc/php/7.2/fpm/pool.d/www.conf \
- && sed -i "/listen.owner = .*/c\listen.owner = devceuma" /etc/php/7.2/fpm/pool.d/www.conf \
- && sed -i "/listen.group = .*/c\listen.group = devceuma" /etc/php/7.2/fpm/pool.d/www.conf \
- # && sed -i "/listen = .*/c\listen = [::]:9000" /etc/php/7.2/fpm/pool.d/www.conf \
- # && sed -i "/;access.log = .*/c\access.log = /proc/self/fd/2" /etc/php/7.2/fpm/pool.d/www.conf \
- && sed -i "/;clear_env = .*/c\clear_env = no" /etc/php/7.2/fpm/pool.d/www.conf \
- && sed -i "/;catch_workers_output = .*/c\catch_workers_output = yes" /etc/php/7.2/fpm/pool.d/www.conf \
- && sed -i "/pid = .*/c\;pid = /run/php/php7.2-fpm.pid" /etc/php/7.2/fpm/php-fpm.conf \
- && sed -i "/;daemonize = .*/c\daemonize = yes" /etc/php/7.2/fpm/php-fpm.conf \
- && sed -i "/error_log = .*/c\error_log = /var/log/php7.2-fpm.log" /etc/php/7.2/fpm/php-fpm.conf \
- && echo "---> Configuring PHP Apache" \
- && sed -i "/post_max_size = .*/c\post_max_size = 1000M" /etc/php/7.2/apache2/php.ini \
- && sed -i "/upload_max_filesize = .*/c\upload_max_filesize = 1000M" /etc/php/7.2/apache2/php.ini \
- # && sed -i "/zend_extension=xdebug/c\;zend_extension=xdebug" /etc/php/7.2/apache2/conf.d/00_xdebug.ini \
- && echo "---> Configuring PHP CLI" \
- && sed -i "/post_max_size = .*/c\post_max_size = 1000M" /etc/php/7.2/cli/php.ini \
- && sed -i "/upload_max_filesize = .*/c\upload_max_filesize = 1000M" /etc/php/7.2/cli/php.ini \
- # && sed -i "/zend_extension=xdebug/c\;zend_extension=xdebug" /etc/php/7.2/cli/conf.d/00_xdebug.ini \
- && echo "---> Configuring PHP FPM" \
- && sed -i "/post_max_size = .*/c\post_max_size = 1000M" /etc/php/7.2/fpm/php.ini \
- && sed -i "/upload_max_filesize = .*/c\upload_max_filesize = 1000M" /etc/php/7.2/fpm/php.ini \
- # && sed -i "/zend_extension=xdebug/c\;zend_extension=xdebug" /etc/php/7.2/fpm/conf.d/00_xdebug.ini
- && chown -R devceuma:devceuma /home/devceuma \
- && chmod +x /scripts/start.sh \
- && rm -rf /tmp/*
 
 RUN echo "---> Installing Composer" \
  && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
@@ -132,13 +101,17 @@ RUN a2enmod rewrite && service apache2 restart
 # Define the running user
 USER devceuma
 
+# fix home directory permissions.
+RUN chown -R devceuma:devceuma /home/devceuma \
+ && chown -R devceuma:www-data /home/devceuma \
+ && chown -R www-data:www-data /var/www \
+ && adduser $USER www-data
+
 # Application directory
 WORKDIR /var/www/app
 
 # Environment variables
 ENV PATH=/home/devceuma/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
-ENTRYPOINT ["/scripts/start.sh"]
 
 EXPOSE 80
 
