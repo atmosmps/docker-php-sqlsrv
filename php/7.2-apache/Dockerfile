@@ -1,8 +1,5 @@
 FROM ubuntu:18.04
 
-# # Add the ENTRYPOINT script
-# ADD configs/bashrc /home/cygni/.bashrc
-
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
@@ -76,15 +73,6 @@ ENV DEBIAN_FRONTEND teletype
 RUN echo "---> Installing Composer" \
  && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
  && chmod +x /usr/local/bin/composer
-#  && echo "---> Adding the Cygni user" \
-#  && adduser -q -u 1000 cygni \
-#  && usermod -aG www-data cygni \
-#  && mkdir -p /var/www/app \
-#  && chown -R cygni:cygni /var/www \
-#  && chown -R www-data:cygni /var/www \
-#  && chown -R www-data:cygni /etc/apache2 \
-#  && echo "cygni  ALL = ( ALL ) NOPASSWD: ALL" >> /etc/sudoers \
-#  && chown -R cygni:cygni /home/cygni
 
 RUN echo "---> Cleaning up" \
  && apt-get autoremove -y \
@@ -94,16 +82,11 @@ RUN echo "---> Cleaning up" \
 
 COPY configs/000-default.conf /etc/apache2/sites-available/000-default.conf
 
-RUN a2enmod rewrite && service apache2 restart
+RUN a2enmod rewrite \
+ && service apache2 restart \
+ && service apache2 reload
 
-# # Define the running user
-# USER cygni
-
-# Application directory
 WORKDIR /var/www/html
-
-# # Environment variables
-# ENV PATH=/home/cygni/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 EXPOSE 80
 
