@@ -4,6 +4,6 @@ services:
     image: devsceuma/docker-php-sqlsrv:7.2-apache
     container_name: container-app-name
     volumes:
-      - ./web-samples:/var/www/html
+      - ./web-samples:/var/www/app
     ports:
-      - "8000:80"
+      - "8000:8080"

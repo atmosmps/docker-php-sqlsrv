@@ -1,5 +1,7 @@
 FROM ubuntu:18.04
 
+#ADD configs/bashrc /home/devsceuma/.bashrc
+
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
@@ -70,6 +72,14 @@ RUN apt-get update \
     && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
 ENV DEBIAN_FRONTEND teletype
 
+#RUN echo "---> Adding the devsceuma user" \
+#&& adduser --home /home/devsceuma/ --disabled-login --gecos "" devsceuma \
+#&& usermod -a -G www-data devsceuma \
+#&& mkdir -p /var/www/app \
+#&& chown -R devsceuma:www-data /var/www \
+#&& chown -R devsceuma:www-data /home/devsceuma \
+#&& echo "devsceuma  ALL = ( ALL ) NOPASSWD: ALL" >> /etc/sudoers
+
 RUN echo "---> Installing Composer" \
  && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
  && chmod +x /usr/local/bin/composer
@@ -80,13 +90,23 @@ RUN echo "---> Cleaning up" \
  && apt-get clean -y \
  && rm -rf /tmp/*
 
-COPY configs/000-default.conf /etc/apache2/sites-available/000-default.conf
+## Define the running user
+#USER devsceuma
+
+#RUN usermod -a -G www-data devsceuma \
+#    && chown -R devsceuma:www-data /var/www \
+#    && chown -R devsceuma:www-data /home/devsceuma
+#    && echo "devsceuma  ALL = ( ALL ) NOPASSWD: ALL" >> /etc/sudoers
+
+WORKDIR /var/www/html
+
+ADD configs/000-default.conf /etc/apache2/sites-available/000-default.conf
+#ADD configs/apache2.conf /etc/apache2/apache2.conf
+#ADD configs/ports.conf /etc/apache2/ports.conf
 
 RUN a2enmod rewrite \
  && service apache2 restart \
  && service apache2 reload
-
-WORKDIR /var/www/html
 
 EXPOSE 80
 
